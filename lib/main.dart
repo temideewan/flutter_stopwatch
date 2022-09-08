@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
- const MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +28,8 @@ class MyHomePage extends StatelessWidget {
       child: Scaffold(
         body: Center(
           child: Padding(
-            padding:  EdgeInsets.all(32.0),
-            child: AspectRatio(aspectRatio: 1, child: Stopwatch()),
+            padding: EdgeInsets.all(32.0),
+            child: AspectRatio(aspectRatio: 0.85, child: Stopwatch()),
           ),
         ),
       ),

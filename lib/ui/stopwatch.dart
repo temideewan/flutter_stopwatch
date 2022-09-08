@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:my_stopwatch_flutter/ui/reset_button.dart';
+import 'package:my_stopwatch_flutter/ui/start_stop_button.dart';
 import 'package:my_stopwatch_flutter/ui/stopwatch_renderer.dart';
 
 class Stopwatch extends StatefulWidget {
@@ -10,18 +12,42 @@ class Stopwatch extends StatefulWidget {
 
 class _StopwatchState extends State<Stopwatch>
     with SingleTickerProviderStateMixin {
-  Duration _elapsedTime = Duration.zero;
+  Duration _previouslyElapsed = Duration.zero;
+  Duration _currentlyElapsed = Duration.zero;
+  Duration get _elapsedTime => _previouslyElapsed + _currentlyElapsed;
   late final Ticker _ticker;
+  bool _isRunning = false;
   @override
   void initState() {
     super.initState();
     _ticker = createTicker((elapsed) {
       setState(() {
-        _elapsedTime = elapsed;
+        _currentlyElapsed = elapsed;
       });
     });
     // need to start the ticker
-    _ticker.start();
+  }
+
+  void _toggleRunning() {
+    setState(() {
+      _isRunning = !_isRunning;
+      if (_isRunning) {
+        _ticker.start();
+      } else {
+        _ticker.stop();
+        _previouslyElapsed += _currentlyElapsed;
+        _currentlyElapsed = Duration.zero;
+      }
+    });
+  }
+
+  void _reset() {
+    setState(() {
+      _ticker.stop();
+      _currentlyElapsed = Duration.zero;
+      _previouslyElapsed = Duration.zero;
+      _isRunning = false;
+    });
   }
 
   @override
@@ -34,9 +60,32 @@ class _StopwatchState extends State<Stopwatch>
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final radius = constraints.maxWidth / 2;
-      return StopWatchRenderer(
-        elapsed: _elapsedTime,
-        radius: radius,
+      return Stack(
+        children: [
+          StopWatchRenderer(
+            elapsed: _elapsedTime,
+            radius: radius,
+          ),
+          Align(
+              alignment: Alignment.bottomLeft,
+              child: SizedBox(
+                width: 80,
+                height: 80,
+                child: ResetButton(
+                  onPressed: _reset,
+                ),
+              )),
+          Align(
+              alignment: Alignment.bottomRight,
+              child: SizedBox(
+                width: 80,
+                height: 80,
+                child: StartStopButton(
+                  onPressed: _toggleRunning,
+                  isRunning: _isRunning,
+                ),
+              ))
+        ],
       );
     });
   }
